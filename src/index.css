@@ -266,6 +266,9 @@ code {
 }
 
 .totaal-banner {
+  position: sticky;
+  top: 4.75rem;
+  z-index: 15;
   display: grid;
   justify-items: center;
   text-align: center;
@@ -276,7 +279,8 @@ code {
   border: 1px solid rgba(31, 92, 74, 0.22);
   background:
     linear-gradient(135deg, rgba(31, 92, 74, 0.12), rgba(196, 92, 38, 0.1)),
-    rgba(255, 255, 255, 0.7);
+    rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
   box-shadow: var(--shadow);
   animation: rise 0.55s ease both;
 }
@@ -306,10 +310,74 @@ code {
   font-size: 0.92rem;
 }
 
+.stand-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.stand-pager__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.stand-pager__tab {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.stand-pager__tab:hover {
+  background: rgba(31, 92, 74, 0.08);
+  color: var(--ink);
+}
+
+.stand-pager__tab--active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #f4faf7;
+}
+
+.stand-pager__tab--active:hover {
+  background: var(--brand-deep);
+  color: #f4faf7;
+}
+
+.stand-pager__meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
 .kavel-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1rem;
+}
+
+.kavel-grid--page {
+  animation: page-fade 0.45s ease both;
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .kavel-tile {
