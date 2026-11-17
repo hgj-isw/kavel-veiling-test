@@ -15,14 +15,15 @@ export default function Login() {
 
   if (isLoggedIn) return <Navigate to={from} replace />
 
-  function go(next) {
-    navigate(next.admin ? '/admin' : from, { replace: true })
+  function go() {
+    navigate(from, { replace: true })
   }
 
   function onQuickLogin(accountEmail) {
     setFout('')
     try {
-      go(loginAs(accountEmail))
+      loginAs(accountEmail)
+      go()
     } catch (err) {
       setFout(err.message)
     }
@@ -32,7 +33,8 @@ export default function Login() {
     e.preventDefault()
     setFout('')
     try {
-      go(loginWithPin(email, pin))
+      loginWithPin(email, pin)
+      go()
     } catch (err) {
       setFout(err.message)
     }

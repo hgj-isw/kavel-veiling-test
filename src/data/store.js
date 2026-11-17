@@ -1,7 +1,10 @@
 /**
- * Lokale opslag-laag (localStorage).
+ * Lokale opslag-laag (localStorage) — leerling-site.
  * Later te vervangen door SharePoint/Graph-calls met dezelfde functienamen.
  * Roept NOOIT de bestaande collega-lijst "Veiling en beidingen" aan.
+ *
+ * Testfase: deze key is bewust NIET gedeeld met de admin-site
+ * (`isw-kavel-veiling-admin-v1`). Twee losse stores tot SharePoint.
  */
 
 import { SEED_BIEDINGEN, SEED_KAVELS } from './seed.js'

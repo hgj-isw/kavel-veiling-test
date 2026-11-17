@@ -1,15 +1,26 @@
-# ISW Hoogeland — Kavelveiling (test)
+# ISW Hoogeland — Kavelveiling (leerling-site, test)
 
-Nederlandse **test**-website voor de goede-doelen kavelveiling.
+Nederlandse **test**-website voor de goede-doelen kavelveiling (leerlingen).
 Data staat in **localStorage** (nepdata). Later vervangbaar door SharePoint-lijsten.
 De bestaande collega-lijst *Veiling en beidingen* wordt **niet** aangeroepen.
+
+**Control Center (admin)** staat in een **aparte** repo/site:
+[`hgj-isw/kavel-veiling-admin`](https://github.com/hgj-isw/kavel-veiling-admin) →
+https://hgj-isw.github.io/kavel-veiling-admin/
 
 ## Wat zit erin
 
 - **Stand** (`/`): hoogste bod per kavel, **zonder namen**; auto-ververs ~1 minuut
 - **Bieden** (`/bieden`): bod alleen als ≥ hoogste + stap; foutmelding in gewone taal
 - **Login (TEST)**: allowlist `hgj@isw.info` en `elt@isw.info` — knoppen “Inloggen als…” of PIN `1234`
-- **Control Center** (`/admin`): alleen `hgj@isw.info` — kavels CRUD, stapgrootte, alle biedingen + e-mail, bod verwijderen
+- Geen admin-menu of `/admin`-route op deze site
+
+## Opslag (testfase)
+
+- localStorage-key leerling-site: `isw-kavel-veiling-v1`
+- Admin-site gebruikt een **andere** key (`isw-kavel-veiling-admin-v1`)
+- In de testfase zijn dit **twee losse stores** (zelfde browser-origin, bewust gescheiden).
+  Echte gedeelde data komt later via SharePoint.
 
 ## Lokaal starten
 
@@ -26,35 +37,17 @@ Open de URL die Vite toont (meestal http://127.0.0.1:5173/kavel-veiling-test/).
 npm run build:pages
 ```
 
-Zet de inhoud van `dist/` online via GitHub Pages (branch `gh-pages` of `/docs`, of Actions).
-Repo-naam bij voorkeur: `kavel-veiling-test` (base-path staat zo in `vite.config.js`).
+Deploy `dist/` naar branch `gh-pages` (pad `/`).
 
-### Repo aanmaken en pushen (Jasper)
-
-Op jouw laptop (met `gh` ingelogd als `hgj-isw`):
-
-```bash
-# map met deze code
-cd kavel-veiling-test
-
-gh repo create hgj-isw/kavel-veiling-test --public --source=. --remote=origin --push
-# of --private als je de test niet publiek wilt
-
-# daarna Pages: Settings → Pages → Deploy from branch → gh-pages
-# of: npm run build:pages && npx gh-pages -d dist
-```
-
-Publieke URL wordt dan ongeveer:
-
-`https://hgj-isw.github.io/kavel-veiling-test/`
+Live: https://hgj-isw.github.io/kavel-veiling-test/
 
 ## Testen (kort)
 
 1. Open de site → stand met 5 kavels (nepdata).
 2. **Inloggen als ELT** → Bieden → te laag bod → Nederlandse fout.
 3. Geldig bod → stand toont nieuw hoogste bedrag (zonder naam).
-4. Uitloggen → **Inloggen als Jasper (admin)** → Control Center: biedingen met e-mail, kavel bewerken, bod verwijderen.
-5. ELT mag `/admin` niet gebruiken.
+4. Geen “Control Center” in het menu; `/admin` bestaat niet op deze site.
+5. Beheer: open de aparte admin-site (alleen `hgj@isw.info`).
 
 ## SharePoint later
 

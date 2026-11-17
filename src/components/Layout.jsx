@@ -2,7 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext.jsx'
 
 export default function Layout() {
-  const { user, isAdmin, logout } = useAuth()
+  const { user, logout } = useAuth()
 
   return (
     <div className="app-shell">
@@ -21,7 +21,6 @@ export default function Layout() {
               Stand
             </NavLink>
             <NavLink to="/bieden">Bieden</NavLink>
-            {isAdmin && <NavLink to="/admin">Control Center</NavLink>}
           </nav>
 
           <div className="header-user">
@@ -29,7 +28,6 @@ export default function Layout() {
               <>
                 <span className="header-user__email" title={user.email}>
                   {user.email}
-                  {isAdmin ? ' · admin' : ''}
                 </span>
                 <button type="button" className="btn btn--ghost" onClick={logout}>
                   Uitloggen
