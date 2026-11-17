@@ -3,8 +3,12 @@ import { Link } from 'react-router-dom'
 import { euro, getPubliekeStand, getTotaalOpgehaald } from '../data/store.js'
 
 const REFRESH_MS = 60_000
-/** Aantal kavels per projectie-subtab. */
-const PAGE_SIZE = 10
+/**
+ * Kavels per projectie-subtab.
+ * 8 = 2 rijen × 4 kolommen op typische 16:9-schoolschermen,
+ * zodat de derde rij niet buiten beeld valt.
+ */
+const PAGE_SIZE = 8
 /** Automatische doorrotatie van subtabs op schoolschermen. */
 const PAGE_ROTATE_MS = 15_000
 
