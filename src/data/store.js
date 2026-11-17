@@ -189,6 +189,11 @@ export function getPubliekeStand() {
     }))
 }
 
+/** Som van het hoogste bod per actieve kavel (zoals op de stand). */
+export function getTotaalOpgehaald() {
+  return getPubliekeStand().reduce((som, k) => som + k.hoogsteBod, 0)
+}
+
 export function getSession() {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY)
