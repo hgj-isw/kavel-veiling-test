@@ -7,13 +7,21 @@
  * (`isw-kavel-veiling-admin-v1`). Twee losse stores tot SharePoint.
  */
 
-import { SEED_BIEDINGEN, SEED_KAVELS } from './seed.js'
+import { SEED_BIEDINGEN, SEED_KAVELS, SEED_VERSION } from './seed.js'
 
 const STORAGE_KEY = 'isw-kavel-veiling-v1'
 const SESSION_KEY = 'isw-kavel-session-v1'
 
 function uid(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+}
+
+function makeSeedDb() {
+  return {
+    seedVersion: SEED_VERSION,
+    kavels: structuredClone(SEED_KAVELS),
+    biedingen: structuredClone(SEED_BIEDINGEN),
+  }
 }
 
 function readDb() {
@@ -33,11 +41,11 @@ function writeDb(db) {
 
 export function ensureSeeded() {
   const existing = readDb()
-  if (existing?.kavels?.length) return existing
-  const db = {
-    kavels: structuredClone(SEED_KAVELS),
-    biedingen: structuredClone(SEED_BIEDINGEN),
+  // Testfase: bij nieuwe seed-versie opnieuw vullen zodat stand-paginering zichtbaar is.
+  if (existing?.kavels?.length && existing.seedVersion === SEED_VERSION) {
+    return existing
   }
+  const db = makeSeedDb()
   writeDb(db)
   return db
 }
@@ -47,10 +55,7 @@ export function getDb() {
 }
 
 export function resetToSeed() {
-  const db = {
-    kavels: structuredClone(SEED_KAVELS),
-    biedingen: structuredClone(SEED_BIEDINGEN),
-  }
+  const db = makeSeedDb()
   writeDb(db)
   return db
 }
