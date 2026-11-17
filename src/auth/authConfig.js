@@ -17,12 +17,12 @@ export function isAdmin(email) {
 export const TEST_ACCOUNTS = [
   {
     email: 'hgj@isw.info',
-    label: 'Jasper (admin)',
-    rol: 'Admin + bieden',
+    label: 'Jasper',
+    rol: 'Bieden (leerling-site)',
   },
   {
     email: 'elt@isw.info',
-    label: 'ELT (bieder)',
-    rol: 'Alleen bieden',
+    label: 'ELT',
+    rol: 'Bieden',
   },
 ]

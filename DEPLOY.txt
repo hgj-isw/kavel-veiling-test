@@ -1,32 +1,17 @@
-GitHub-repo aanmaken (vanaf jouw laptop, account hgj-isw)
-=========================================================
+GitHub Pages (leerling-site)
+============================
 
-1. Kopieer deze map lokaal (of download uit de projectstore:
-   docs/github-test-app/).
+Repo: hgj-isw/kavel-veiling-test
+Live: https://hgj-isw.github.io/kavel-veiling-test/
 
-2. In de map:
+Admin staat apart:
+  https://github.com/hgj-isw/kavel-veiling-admin
+  https://hgj-isw.github.io/kavel-veiling-admin/
 
-   git init
-   git add .
-   git commit -m "Eerste versie: test-kavelveiling met nepdata"
-   gh auth login   # eenmalig, als dat nog niet gebeurd is
-   gh repo create hgj-isw/kavel-veiling-test --public --source=. --remote=origin --push
+Bouwen & deployen:
 
-   (Gebruik --private als de testsite niet openbaar mag.)
+  npm install
+  npm run build:pages
+  # push dist/ naar branch gh-pages (pad /)
 
-3. GitHub Pages:
-
-   npm install
-   npm run build:pages
-
-   Optie A — Actions / Pages UI: Settings → Pages → Source = GitHub Actions
-   of branch `gh-pages` / map `docs`.
-
-   Optie B — snel met gh-pages package:
-
-   npx gh-pages -d dist
-
-4. Open: https://hgj-isw.github.io/kavel-veiling-test/
-
-Let op: in deze cloud-agent stond `gh` niet ingelogd, daarom kon de repo
-hier niet automatisch worden aangemaakt.
+Settings → Pages → Deploy from branch → gh-pages → / (root)
