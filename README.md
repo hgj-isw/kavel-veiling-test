@@ -10,7 +10,7 @@ https://hgj-isw.github.io/kavel-veiling-admin/
 
 ## Wat zit erin
 
-- **Stand** (`/`): hoogste bod per kavel, **zonder namen**; auto-ververs ~1 minuut
+- **Stand** (`/`): hoogste bod per kavel, **totaal opgehaald** (som hoogste bod), **zonder namen**; auto-ververs ~1 minuut
 - **Bieden** (`/bieden`): bod alleen als ≥ hoogste + stap; foutmelding in gewone taal
 - **Login (TEST)**: allowlist `hgj@isw.info` en `elt@isw.info` — knoppen “Inloggen als…” of PIN `1234`
 - Geen admin-menu of `/admin`-route op deze site

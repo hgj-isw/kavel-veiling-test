@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { euro, getPubliekeStand } from '../data/store.js'
+import { euro, getPubliekeStand, getTotaalOpgehaald } from '../data/store.js'
 
 const REFRESH_MS = 60_000
 
 export default function Stand() {
   const [stand, setStand] = useState(() => getPubliekeStand())
+  const [totaal, setTotaal] = useState(() => getTotaalOpgehaald())
   const [laatste, setLaatste] = useState(() => new Date())
   const [seconden, setSeconden] = useState(60)
 
   function ververs() {
     setStand(getPubliekeStand())
+    setTotaal(getTotaalOpgehaald())
     setLaatste(new Date())
     setSeconden(60)
   }
@@ -69,6 +71,14 @@ export default function Stand() {
           </Link>
         </div>
       </div>
+
+      <aside className="totaal-banner" aria-live="polite">
+        <p className="totaal-banner__label">Totaal opgehaald</p>
+        <p className="totaal-banner__bedrag">{euro(totaal)}</p>
+        <p className="totaal-banner__hint">
+          Som van het hoogste bod per kavel
+        </p>
+      </aside>
 
       <div className="kavel-grid" role="list">
         {stand.map((k) => (
