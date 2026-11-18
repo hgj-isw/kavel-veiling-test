@@ -12,6 +12,16 @@ binding = "DB"
 database_name = "kavel-veiling"
 database_id = "43208270-6d1b-447a-8ee3-3c94c146753a"
 
+# R2: biedingen/kavels snapshots (cron + admin). Bucket eenmalig aanmaken:
+#   npx wrangler r2 bucket create kavel-veiling-backups
+[[r2_buckets]]
+binding = "BACKUP_BUCKET"
+bucket_name = "kavel-veiling-backups"
+
+# Elk uur volledige export naar R2 (zie workers/src/backup.js).
+[triggers]
+crons = ["0 * * * *"]
+
 [vars]
 # Publieke config (geen geheimen). Frontend CORS-origins komma-gescheiden.
 ALLOWED_ORIGINS = "http://127.0.0.1:5173,http://localhost:5173,https://hgj-isw.github.io"

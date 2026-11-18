@@ -17,7 +17,19 @@
  *   GET    /api/admin/biedingen
  *   DELETE /api/admin/biedingen/:id   → hard-delete één onzinbod (admin only; geen bulk)
  *   GET    /api/admin/allowlist
+ *   GET    /api/admin/export?format=json|csv  → download kavels+biedingen
+ *   POST   /api/admin/backup                 → on-demand snapshot naar R2
+ *   GET    /api/admin/backups                → lijst R2-backups
+ *
+ * Cron (elk uur): scheduled → R2 backups/ (zie backup.js)
  */
+
+import {
+  handleAdminBackup,
+  handleAdminBackupsList,
+  handleAdminExport,
+  handleScheduled,
+} from './backup.js'
 
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000 // 12 uur
 
@@ -91,11 +103,27 @@ export default {
         return handleAdminAllowlist(request, env)
       }
 
+      if (method === 'GET' && path === '/api/admin/export') {
+        return handleAdminExport(request, env, { requireAdmin, json, cors })
+      }
+
+      if (method === 'POST' && path === '/api/admin/backup') {
+        return handleAdminBackup(request, env, { requireAdmin, json })
+      }
+
+      if (method === 'GET' && path === '/api/admin/backups') {
+        return handleAdminBackupsList(request, env, { requireAdmin, json })
+      }
+
       return json(env, request, { error: 'Niet gevonden.' }, 404)
     } catch (err) {
       console.error(err)
       return json(env, request, { error: 'Interne fout op de server.' }, 500)
     }
+  },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(handleScheduled(event, env))
   },
 }
 

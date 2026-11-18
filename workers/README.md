@@ -16,6 +16,11 @@ De publieke stand toont **geen** biedersnamen/e-mails.
 | GET | `/api/admin/biedingen` | admin | Alle biedingen **met** e-mail |
 | DELETE | `/api/admin/biedingen/:id` | admin | Één onzinbod hard-deleten (geen bulk); stand herberekent live |
 | GET | `/api/admin/allowlist` | admin | Allowlist |
+| GET | `/api/admin/export?format=json\|csv` | admin | Download kavels + biedingen (JSON of CSV) |
+| POST | `/api/admin/backup` | admin | On-demand snapshot naar R2 |
+| GET | `/api/admin/backups` | admin | Lijst R2-backup objecten |
+
+**Backup:** cron elk uur schrijft JSON naar R2 bucket `kavel-veiling-backups` (`BACKUP_BUCKET`). Plan: project-doc `docs/biedingen-backup.md`.
 
 ## Wat Jasper moet zetten (eenmalig)
 
@@ -51,15 +56,24 @@ npx wrangler secret put ACCESS_CODE
 # Voer een sterke school-toegangscode in (leerlingen + allowlist-e-mail gebruiken die)
 ```
 
-6. Deploy:
+6. **R2-bucket** voor biedingen-backup (eenmalig):
+
+```bash
+npx wrangler r2 bucket create kavel-veiling-backups
+```
+
+Dashboard-alternatief: R2 → Create bucket → naam `kavel-veiling-backups`. Binding staat al in `wrangler.toml`.
+
+7. Deploy:
 
 ```bash
 npm run deploy
 ```
 
-Live Worker-URL: `https://kavel-veiling-api.hgj-isw.workers.dev`
+Live Worker-URL: `https://kavel-veiling-api.hgj-isw.workers.dev`  
+Cron `0 * * * *` exporteert kavels+biedingen naar R2; admin kan ook `POST /api/admin/backup` of `GET /api/admin/export`.
 
-7. Frontend (repo-root) builden met die URL:
+8. Frontend (repo-root) builden met die URL:
 
 ```bash
 # in repo-root
@@ -68,10 +82,10 @@ VITE_API_URL=https://kavel-veiling-api.hgj-isw.workers.dev npm run build:pages
 
 Of zet in GitHub Actions / Pages-build-env: `VITE_API_URL=…`
 
-8. CORS: `ALLOWED_ORIGINS` in `wrangler.toml` bevat al GitHub Pages + localhost.
+9. CORS: `ALLOWED_ORIGINS` in `wrangler.toml` bevat al GitHub Pages + localhost.
    Voeg eventueel extra origins toe en herdeploy.
 
-9. Allowlist aanpassen (SQL in dashboard of CLI):
+10. Allowlist aanpassen (SQL in dashboard of CLI):
 
 ```sql
 INSERT INTO allowlist (email, is_admin, active) VALUES ('leerling@isw.info', 0, 1);
