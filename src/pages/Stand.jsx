@@ -15,14 +15,13 @@ const PAGE_SIZE = 8
 /** Automatische doorrotatie van subtabs op schoolschermen. */
 const PAGE_ROTATE_MS = 15_000
 
+const logoSrc = `${import.meta.env.BASE_URL}brand/isw-hoogeland-logo.png`
+
 export default function Stand() {
   const { isLoggedIn } = useAuth()
   const [stand, setStand] = useState([])
   const [totaal, setTotaal] = useState(0)
-  const [laatste, setLaatste] = useState(() => new Date())
-  const [seconden, setSeconden] = useState(60)
   const [page, setPage] = useState(0)
-  const [pageTick, setPageTick] = useState(PAGE_ROTATE_MS / 1000)
   const [laden, setLaden] = useState(true)
   const [fout, setFout] = useState('')
   const [actieveKavel, setActieveKavel] = useState(null)
@@ -45,8 +44,6 @@ export default function Stand() {
     } catch (err) {
       setFout(err.message || 'Stand laden mislukt.')
     } finally {
-      setLaatste(new Date())
-      setSeconden(60)
       setLaden(false)
     }
   }
@@ -62,21 +59,10 @@ export default function Stand() {
     }
   }, [])
 
+  // Stille auto-refresh (~1 min); geen zichtbare countdown/timestamp.
   useEffect(() => {
-    const tick = setInterval(() => {
-      setSeconden((s) => {
-        if (s <= 1) {
-          ververs()
-          return 60
-        }
-        return s - 1
-      })
-    }, 1000)
     const auto = setInterval(ververs, REFRESH_MS)
-    return () => {
-      clearInterval(tick)
-      clearInterval(auto)
-    }
+    return () => clearInterval(auto)
   }, [])
 
   // Automatische rotatie tussen subtabs (alleen relevant bij >1 pagina).
@@ -85,133 +71,128 @@ export default function Stand() {
     // Pauzeer rotatie terwijl bied-modal open is.
     if (actieveKavel) return undefined
     const tick = setInterval(() => {
-      setPageTick((s) => {
-        if (s <= 1) {
-          setPage((p) => (Math.min(p, pageCount - 1) + 1) % pageCount)
-          return PAGE_ROTATE_MS / 1000
-        }
-        return s - 1
-      })
-    }, 1000)
+      setPage((p) => (Math.min(p, pageCount - 1) + 1) % pageCount)
+    }, PAGE_ROTATE_MS)
     return () => clearInterval(tick)
   }, [pageCount, actieveKavel])
 
   function gaNaarPagina(index) {
     setPage(index)
-    setPageTick(PAGE_ROTATE_MS / 1000)
   }
 
   function openBieden(kavel) {
     setActieveKavel(kavel)
   }
 
+  if (laden) {
+    return (
+      <section className="stand-loading" aria-busy="true" aria-live="polite">
+        <img
+          className="stand-loading__logo"
+          src={logoSrc}
+          alt="ISW Hoogeland"
+          width={220}
+          height={64}
+        />
+        <p className="stand-loading__text">Laden…</p>
+      </section>
+    )
+  }
+
   return (
     <section className="stand">
-      <aside className="totaal-banner" aria-live="polite">
-        <p className="totaal-banner__label">Totaal opgehaald</p>
-        <p className="totaal-banner__bedrag">{euro(totaal)}</p>
-      </aside>
+      {/* Projectie-blok: vult eerste viewport zodat goede doelen onder de fold blijven. */}
+      <div className="stand__stage">
+        <aside className="totaal-banner" aria-live="polite">
+          <p className="totaal-banner__label">Totaal opgehaald</p>
+          <p className="totaal-banner__bedrag">{euro(totaal)}</p>
+        </aside>
 
-      <div className="stand__toolbar">
-        <p className="stand__meta">
-          <span>
-            {laatste.toLocaleTimeString('nl-NL', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-            })}
-          </span>
-          <span>·</span>
-          <span>~{seconden}s</span>
-        </p>
-        <div className="stand__actions">
-          <button type="button" className="btn btn--ghost" onClick={ververs}>
-            Vernieuwen
-          </button>
-          {!isLoggedIn && (
-            <Link className="btn btn--primary" to="/login">
-              Inloggen
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {fout && (
-        <p className="msg msg--error" role="alert">
-          {fout}
-        </p>
-      )}
-
-      {stand.length > 0 && (
-        <div className="stand-pager" role="tablist" aria-label="Kavelpagina’s">
-          <div className="stand-pager__tabs">
-            {Array.from({ length: pageCount }, (_, i) => {
-              const from = i * PAGE_SIZE + 1
-              const to = Math.min((i + 1) * PAGE_SIZE, stand.length)
-              const active = i === safePage
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  className={
-                    active
-                      ? 'stand-pager__tab stand-pager__tab--active'
-                      : 'stand-pager__tab'
-                  }
-                  onClick={() => gaNaarPagina(i)}
-                >
-                  {from}–{to}
-                </button>
-              )
-            })}
-          </div>
-          <p className="stand-pager__meta" aria-live="polite">
-            Pagina {safePage + 1}/{pageCount}
-            {pageCount > 1 ? ` · ~${pageTick}s` : null}
-          </p>
-        </div>
-      )}
-
-      <div
-        key={safePage}
-        className="kavel-grid kavel-grid--page"
-        role="list"
-        aria-label={`Kavels ${rangeLabel}`}
-      >
-        {pageItems.map((k) => (
-          <article key={k.id} className="kavel-tile kavel-tile--bid" role="listitem">
-            <button
-              type="button"
-              className="kavel-tile__hit"
-              onClick={() => openBieden(k)}
-              aria-label={`Bieden op ${k.titel}`}
-            >
-              <h2>{k.titel}</h2>
-              <p>{k.omschrijving}</p>
-              <p className="kavel-tile__bid">{euro(k.hoogsteBod)}</p>
-              <p className="kavel-tile__hint">
-                Min. +{euro(k.stapGrootte)}
-                {k.aantalBiedingen > 0
-                  ? ` · ${k.aantalBiedingen}×`
-                  : ' · nog geen biedingen'}
-              </p>
-              <span className="kavel-tile__cta">Bieden</span>
+        <div className="stand__toolbar">
+          <div className="stand__actions">
+            <button type="button" className="btn btn--ghost" onClick={ververs}>
+              Vernieuwen
             </button>
-          </article>
-        ))}
+            {!isLoggedIn && (
+              <Link className="btn btn--primary" to="/login">
+                Inloggen
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {fout && (
+          <p className="msg msg--error" role="alert">
+            {fout}
+          </p>
+        )}
+
+        {stand.length > 0 && (
+          <div className="stand-pager" role="tablist" aria-label="Kavelpagina’s">
+            <div className="stand-pager__tabs">
+              {Array.from({ length: pageCount }, (_, i) => {
+                const from = i * PAGE_SIZE + 1
+                const to = Math.min((i + 1) * PAGE_SIZE, stand.length)
+                const active = i === safePage
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    className={
+                      active
+                        ? 'stand-pager__tab stand-pager__tab--active'
+                        : 'stand-pager__tab'
+                    }
+                    onClick={() => gaNaarPagina(i)}
+                  >
+                    {from}–{to}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="stand-pager__meta" aria-live="polite">
+              Pagina {safePage + 1}/{pageCount}
+            </p>
+          </div>
+        )}
+
+        <div
+          key={safePage}
+          className="kavel-grid kavel-grid--page"
+          role="list"
+          aria-label={`Kavels ${rangeLabel}`}
+        >
+          {pageItems.map((k) => (
+            <article key={k.id} className="kavel-tile kavel-tile--bid" role="listitem">
+              <button
+                type="button"
+                className="kavel-tile__hit"
+                onClick={() => openBieden(k)}
+                aria-label={`Bieden op ${k.titel}`}
+              >
+                <h2>{k.titel}</h2>
+                <p>{k.omschrijving}</p>
+                <p className="kavel-tile__bid">{euro(k.hoogsteBod)}</p>
+                <p className="kavel-tile__hint">
+                  Min. +{euro(k.stapGrootte)}
+                  {k.aantalBiedingen > 0
+                    ? ` · ${k.aantalBiedingen}×`
+                    : ' · nog geen biedingen'}
+                </p>
+                <span className="kavel-tile__cta">Bieden</span>
+              </button>
+            </article>
+          ))}
+        </div>
+
+        {stand.length === 0 && !fout && (
+          <p className="empty">Er zijn nog geen actieve kavels.</p>
+        )}
       </div>
 
-      {laden && stand.length === 0 && !fout && (
-        <p className="empty">Stand laden…</p>
-      )}
-
-      {!laden && stand.length === 0 && !fout && (
-        <p className="empty">Er zijn nog geen actieve kavels.</p>
-      )}
-
-      {/* Onder de projectie-grid: goede doelen blijven buiten 2×4-viewport. */}
+      {/* Onder de projectie-grid: goede doelen blijven buiten eerste viewport. */}
       <Charities />
 
       {actieveKavel && (
