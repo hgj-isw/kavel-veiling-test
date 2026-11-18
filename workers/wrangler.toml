@@ -1,17 +1,16 @@
 # Cloudflare Worker — kavel-veiling API
-# Jasper: vervang account_id / database_id na `wrangler d1 create kavel-veiling`
 # Secrets (NOOIT in git): wrangler secret put ACCESS_CODE
 
 name = "kavel-veiling-api"
 main = "src/index.js"
 compatibility_date = "2025-11-01"
 
-# account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+account_id = "51bb8bf9a003b7dc4cd4ec70e7900b5b"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "kavel-veiling"
-# database_id = "YOUR_D1_DATABASE_ID"
+database_id = "43208270-6d1b-447a-8ee3-3c94c146753a"
 
 [vars]
 # Publieke config (geen geheimen). Frontend CORS-origins komma-gescheiden.

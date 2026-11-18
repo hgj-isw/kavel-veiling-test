@@ -56,13 +56,13 @@ npx wrangler secret put ACCESS_CODE
 npm run deploy
 ```
 
-Noteer de Worker-URL, bijv. `https://kavel-veiling-api.<account>.workers.dev`.
+Live Worker-URL: `https://kavel-veiling-api.hgj-isw.workers.dev`
 
 7. Frontend (repo-root) builden met die URL:
 
 ```bash
 # in repo-root
-VITE_API_URL=https://kavel-veiling-api.<account>.workers.dev npm run build:pages
+VITE_API_URL=https://kavel-veiling-api.hgj-isw.workers.dev npm run build:pages
 ```
 
 Of zet in GitHub Actions / Pages-build-env: `VITE_API_URL=…`

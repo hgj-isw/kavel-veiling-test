@@ -24,11 +24,16 @@ npx wrangler login          # Jasper — agent heeft geen CF-login
 # … D1 create, migrate, seed, secret put ACCESS_CODE, deploy
 ```
 
+Live API (na deploy): `https://kavel-veiling-api.hgj-isw.workers.dev`
+
 Frontend tegen live API:
 
 ```bash
-VITE_API_URL=https://kavel-veiling-api.<account>.workers.dev npm run build:pages
+VITE_API_URL=https://kavel-veiling-api.hgj-isw.workers.dev npm run build:pages
 ```
+
+Toegangscode: tijdelijke testcode staat als Worker-secret; Jasper wijzigt met:
+`cd workers && npx wrangler secret put ACCESS_CODE`
 
 ## Lokaal starten (mock)
 
