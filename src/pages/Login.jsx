@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { getApiModeInfo } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 
 export default function Login() {
@@ -8,7 +7,6 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/'
-  const apiInfo = getApiModeInfo()
 
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -69,10 +67,6 @@ export default function Login() {
           {bezig ? 'Bezig…' : 'Inloggen'}
         </button>
       </form>
-
-      {apiInfo.hint && (
-        <p className="login-hint muted">{apiInfo.hint}</p>
-      )}
     </section>
   )
 }

@@ -5,7 +5,6 @@
 import {
   clearMockSession,
   getMockSession,
-  mockMeta,
   mockRequest,
 } from './mock.js'
 
@@ -39,16 +38,6 @@ export function setStoredToken(token) {
   }
 }
 
-export function getApiModeInfo() {
-  if (usingMockApi) {
-    return {
-      mode: 'mock',
-      hint: `Lokale mock-API. Toegangscode voor demo: ${mockMeta.accessCodeHint}`,
-    }
-  }
-  return { mode: 'remote', hint: null }
-}
-
 async function api(method, path, { body, auth = false } = {}) {
   const token = getStoredToken()
 
@@ -79,7 +68,7 @@ async function api(method, path, { body, auth = false } = {}) {
     })
   } catch (networkErr) {
     const err = new Error(
-      `Geen verbinding met de veiling-API (${API_BASE}). Controleer netwerk/firewall of hard-vernieuw de pagina (Ctrl/Cmd+Shift+R).`,
+      'Geen verbinding met de veiling. Probeer de pagina te vernieuwen.',
     )
     err.status = 0
     err.cause = networkErr
@@ -97,7 +86,7 @@ async function api(method, path, { body, auth = false } = {}) {
   }
 
   if (!res.ok) {
-    const err = new Error(data?.error || `API-fout ${res.status} op ${path}`)
+    const err = new Error(data?.error || 'Er ging iets mis. Probeer het opnieuw.')
     err.status = res.status
     err.data = data
     throw err
