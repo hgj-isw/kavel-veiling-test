@@ -197,6 +197,7 @@ async function handlePlaceBid(request, env) {
     return json(env, request, { error: 'Vul een geldig bedrag in euro’s in.' }, 400)
   }
 
+  // Vriendelijke pre-check (niet atomisch) voor duidelijke foutteksten.
   const stats = await hoogsteEnAantal(env.DB, kavelId, kavel.start_bedrag)
   const minimum =
     stats.aantalBiedingen === 0
@@ -204,34 +205,51 @@ async function handlePlaceBid(request, env) {
       : stats.hoogsteBod + kavel.stap_grootte
 
   if (amount < minimum) {
-    if (stats.aantalBiedingen === 0) {
-      return json(
-        env,
-        request,
-        {
-          error: `Je bod is te laag. Het startbedrag is €${formatEuro(kavel.start_bedrag)}.`,
-        },
-        400,
-      )
-    }
-    return json(
-      env,
-      request,
-      {
-        error: `Je bod is te laag. Het hoogste bod is nu €${formatEuro(stats.hoogsteBod)}. Je moet minstens €${formatEuro(kavel.stap_grootte)} meer bieden (dus €${formatEuro(minimum)} of hoger).`,
-      },
-      400,
-    )
+    return teLaagBodResponse(env, request, kavel, stats, minimum)
   }
 
   const id = `b_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`
   const tijdstip = new Date().toISOString()
 
-  await env.DB.prepare(
-    'INSERT INTO biedingen (id, kavel_id, bedrag, email, tijdstip) VALUES (?, ?, ?, ?, ?)',
+  // Atomische insert: voorkomt concurrente gelijke biedingen (check-then-insert race).
+  // Minimum = startbedrag als er nog geen biedingen zijn, anders MAX(bedrag)+stap.
+  const inserted = await env.DB.prepare(
+    `INSERT INTO biedingen (id, kavel_id, bedrag, email, tijdstip)
+     SELECT ?, ?, ?, ?, ?
+     WHERE ? >= (
+       CASE
+         WHEN (SELECT COUNT(*) FROM biedingen WHERE kavel_id = ?) = 0
+           THEN (SELECT start_bedrag FROM kavels WHERE id = ?)
+         ELSE (
+           SELECT COALESCE(MAX(bedrag), 0) + (SELECT stap_grootte FROM kavels WHERE id = ?)
+           FROM biedingen WHERE kavel_id = ?
+         )
+       END
+     )`,
   )
-    .bind(id, kavelId, amount, session.email, tijdstip)
+    .bind(
+      id,
+      kavelId,
+      amount,
+      session.email,
+      tijdstip,
+      amount,
+      kavelId,
+      kavelId,
+      kavelId,
+      kavelId,
+    )
     .run()
+
+  if (!inserted.meta?.changes) {
+    // Race verloren of stand intussen gestegen — herbereken foutmelding.
+    const opnieuw = await hoogsteEnAantal(env.DB, kavelId, kavel.start_bedrag)
+    const minNu =
+      opnieuw.aantalBiedingen === 0
+        ? kavel.start_bedrag
+        : opnieuw.hoogsteBod + kavel.stap_grootte
+    return teLaagBodResponse(env, request, kavel, opnieuw, minNu)
+  }
 
   return json(env, request, {
     id,
@@ -240,6 +258,27 @@ async function handlePlaceBid(request, env) {
     tijdstip,
     // Geen e-mail terug in publieke response-shape; caller kent eigen sessie.
   })
+}
+
+function teLaagBodResponse(env, request, kavel, stats, minimum) {
+  if (stats.aantalBiedingen === 0) {
+    return json(
+      env,
+      request,
+      {
+        error: `Je bod is te laag. Het startbedrag is €${formatEuro(kavel.start_bedrag)}.`,
+      },
+      400,
+    )
+  }
+  return json(
+    env,
+    request,
+    {
+      error: `Je bod is te laag. Het hoogste bod is nu €${formatEuro(stats.hoogsteBod)}. Je moet minstens €${formatEuro(kavel.stap_grootte)} meer bieden (dus €${formatEuro(minimum)} of hoger).`,
+    },
+    400,
+  )
 }
 
 async function handleAdminBiedingen(request, env) {
@@ -401,18 +440,22 @@ function allowedOrigin(env, request) {
   if (origin.startsWith('http://127.0.0.1:') || origin.startsWith('http://localhost:')) {
     return origin
   }
-  return list[0] || '*'
+  // Onbekende origin: geen allow-header (zie cors()). Niet list[0] echoën.
+  return null
 }
 
 function cors(env, request, response) {
   const headers = new Headers(response.headers)
-  headers.set('Access-Control-Allow-Origin', allowedOrigin(env, request))
-  headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  headers.set(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization',
-  )
-  headers.set('Access-Control-Max-Age', '86400')
+  const origin = allowedOrigin(env, request)
+  if (origin) {
+    headers.set('Access-Control-Allow-Origin', origin)
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization',
+    )
+    headers.set('Access-Control-Max-Age', '86400')
+  }
   headers.set('Vary', 'Origin')
   return new Response(response.body, {
     status: response.status,
