@@ -290,6 +290,7 @@ async function getStand(db) {
       omschrijving: k.omschrijving,
       stapGrootte: k.stapGrootte,
       startBedrag: k.startBedrag,
+      // Zonder biedingen: toon startbedrag als richtprijs, telt NIET mee in totaal.
       hoogsteBod: stats.hoogsteBod,
       aantalBiedingen: stats.aantalBiedingen,
       minimumVolgendBod:
@@ -298,7 +299,10 @@ async function getStand(db) {
           : stats.hoogsteBod + k.stapGrootte,
       // GEEN email / naam
     })
-    totaalOpgehaald += stats.hoogsteBod
+    // Totaal opgehaald = alleen echte biedingen (niet kale startbedragen).
+    if (stats.aantalBiedingen > 0) {
+      totaalOpgehaald += stats.hoogsteBod
+    }
   }
 
   return { kavels: stand, totaalOpgehaald }

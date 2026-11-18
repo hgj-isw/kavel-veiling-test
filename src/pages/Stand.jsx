@@ -138,7 +138,7 @@ export default function Stand() {
         <p className="totaal-banner__label">Totaal opgehaald</p>
         <p className="totaal-banner__bedrag">{euro(totaal)}</p>
         <p className="totaal-banner__hint">
-          Som van het hoogste bod per kavel
+          Som van echte hoogste biedingen (zonder startbedrag tot er geboden is)
         </p>
       </aside>
 
