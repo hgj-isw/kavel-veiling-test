@@ -4,7 +4,11 @@ import { euro, fetchStand } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import BidModal from '../components/BidModal.jsx'
 import Charities from '../components/Charities.jsx'
-import { formatStijgingPct, topStijgers } from '../lib/stijgers.js'
+import {
+  formatStijgingPct,
+  topHoogsteBedragen,
+  topStijgers,
+} from '../lib/stijgers.js'
 
 const REFRESH_MS = 60_000
 /**
@@ -42,6 +46,7 @@ export default function Stand() {
       ? 'geen kavels'
       : `kavel ${pageStart + 1}–${Math.min(pageStart + PAGE_SIZE, stand.length)}`
   const stijgers = topStijgers(stand, 3)
+  const hoogste = topHoogsteBedragen(stand, 3)
 
   async function ververs() {
     try {
@@ -154,29 +159,58 @@ export default function Stand() {
               <p className="totaal-banner__bedrag">{euro(totaal)}</p>
             </aside>
 
-            {stijgers.length > 0 && (
-              <div
-                className="stijgers-bar"
-                aria-label="Top 3 snelst stijgend ten opzichte van startbedrag"
-              >
-                <p className="stijgers-bar__label">Snelst stijgend</p>
-                <ol className="stijgers-bar__list">
-                  {stijgers.map((k, i) => (
-                    <li key={k.id} className="stijgers-bar__item">
-                      <span className="stijgers-bar__rank">{i + 1}</span>
-                      <button
-                        type="button"
-                        className="stijgers-bar__hit"
-                        onClick={() => openBieden(k)}
-                      >
-                        <span className="stijgers-bar__titel">{k.titel}</span>
-                        <span className="stijgers-bar__pct">
-                          {formatStijgingPct(k.stijgingPct)}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ol>
+            {(stijgers.length > 0 || hoogste.length > 0) && (
+              <div className="stand-highlights">
+                {stijgers.length > 0 && (
+                  <div
+                    className="stijgers-bar"
+                    aria-label="Top 3 snelst stijgend ten opzichte van startbedrag"
+                  >
+                    <p className="stijgers-bar__label">Snelst stijgend</p>
+                    <ol className="stijgers-bar__list">
+                      {stijgers.map((k, i) => (
+                        <li key={k.id} className="stijgers-bar__item">
+                          <span className="stijgers-bar__rank">{i + 1}</span>
+                          <button
+                            type="button"
+                            className="stijgers-bar__hit"
+                            onClick={() => openBieden(k)}
+                          >
+                            <span className="stijgers-bar__titel">{k.titel}</span>
+                            <span className="stijgers-bar__pct">
+                              {formatStijgingPct(k.stijgingPct)}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                {hoogste.length > 0 && (
+                  <div
+                    className="stijgers-bar stijgers-bar--bedrag"
+                    aria-label="Top 3 hoogste bedragen met echt bod"
+                  >
+                    <p className="stijgers-bar__label">Hoogste bedragen</p>
+                    <ol className="stijgers-bar__list">
+                      {hoogste.map((k, i) => (
+                        <li key={k.id} className="stijgers-bar__item">
+                          <span className="stijgers-bar__rank">{i + 1}</span>
+                          <button
+                            type="button"
+                            className="stijgers-bar__hit"
+                            onClick={() => openBieden(k)}
+                          >
+                            <span className="stijgers-bar__titel">{k.titel}</span>
+                            <span className="stijgers-bar__pct">
+                              {euro(k.hoogsteBod)}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
               </div>
             )}
 
