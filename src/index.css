@@ -673,11 +673,6 @@ p {
   max-width: 480px;
 }
 
-.login-hint {
-  margin-top: 1.1rem;
-  font-size: 0.9rem;
-}
-
 .modal-backdrop {
   position: fixed;
   inset: 0;

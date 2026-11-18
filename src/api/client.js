@@ -5,7 +5,6 @@
 import {
   clearMockSession,
   getMockSession,
-  mockMeta,
   mockRequest,
 } from './mock.js'
 
@@ -14,7 +13,6 @@ const API_BASE = String(import.meta.env.VITE_API_URL || '')
   .replace(/\/+$/, '')
 
 export const usingMockApi = !API_BASE
-export const apiBaseUrl = API_BASE || null
 
 const TOKEN_KEY = 'isw-kavel-api-token-v1'
 
@@ -37,16 +35,6 @@ export function setStoredToken(token) {
   } catch {
     /* ignore */
   }
-}
-
-export function getApiModeInfo() {
-  if (usingMockApi) {
-    return {
-      mode: 'mock',
-      hint: `Lokale mock-API. Toegangscode voor demo: ${mockMeta.accessCodeHint}`,
-    }
-  }
-  return { mode: 'remote', hint: null }
 }
 
 async function api(method, path, { body, auth = false } = {}) {
@@ -79,7 +67,7 @@ async function api(method, path, { body, auth = false } = {}) {
     })
   } catch (networkErr) {
     const err = new Error(
-      `Geen verbinding met de veiling-API (${API_BASE}). Controleer netwerk/firewall of hard-vernieuw de pagina (Ctrl/Cmd+Shift+R).`,
+      'Geen verbinding met de veiling. Probeer de pagina te vernieuwen.',
     )
     err.status = 0
     err.cause = networkErr
@@ -97,7 +85,7 @@ async function api(method, path, { body, auth = false } = {}) {
   }
 
   if (!res.ok) {
-    const err = new Error(data?.error || `API-fout ${res.status} op ${path}`)
+    const err = new Error(data?.error || 'Er ging iets mis. Probeer het opnieuw.')
     err.status = res.status
     err.data = data
     throw err
