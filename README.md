@@ -1,61 +1,62 @@
-# ISW Hoogeland — Kavelveiling (leerling-site, test)
+# ISW Hoogeland — Kavelveiling (leerling-site)
 
-Nederlandse **test**-website voor de goede-doelen kavelveiling (leerlingen).
-Data staat in **localStorage** (nepdata). Later vervangbaar door SharePoint-lijsten.
-De bestaande collega-lijst *Veiling en beidingen* wordt **niet** aangeroepen.
+Nederlandse website voor de goede-doelen kavelveiling (leerlingen).
+Data via **Cloudflare Workers + D1** (niet localStorage / niet Graph).
+Zonder `VITE_API_URL` valt de UI terug op een lokale **mock** met dezelfde API-vorm.
 
-**Control Center (admin)** staat in een **aparte** repo/site:
-[`hgj-isw/kavel-veiling-admin`](https://github.com/hgj-isw/kavel-veiling-admin) →
-https://hgj-isw.github.io/kavel-veiling-admin/
+**Control Center (admin)** staat in een aparte repo (nog op localStorage — follow-up Cloudflare):
+[`hgj-isw/kavel-veiling-admin`](https://github.com/hgj-isw/kavel-veiling-admin)
 
 ## Wat zit erin
 
-- **Stand** (`/`): hoogste bod per kavel, **totaal opgehaald** (som hoogste bod), **zonder namen**; auto-ververs ~1 minuut
-- **Bieden** (`/bieden`): bod alleen als ≥ hoogste + stap; foutmelding in gewone taal
-- **Login (TEST)**: allowlist `hgj@isw.info` en `elt@isw.info` — knoppen “Inloggen als…” of PIN `1234`
-- Geen admin-menu of `/admin`-route op deze site
+- **Stand** (`/`): hoogste bod per kavel, totaal opgehaald, **zonder namen**; projectie-paginering (8/pagina, ~15s)
+- **Bieden**: klik op een kaveltegel → popup (bedrag + bevestigen); geen apart bied-tabblad
+- **Login**: school-e-mail (`@isw.info`) + toegangscode, gevalideerd tegen Worker-allowlist + `ACCESS_CODE`
 
-## Opslag (testfase)
+## Cloudflare API
 
-- localStorage-key leerling-site: `isw-kavel-veiling-v1`
-- Admin-site gebruikt een **andere** key (`isw-kavel-veiling-admin-v1`)
-- In de testfase zijn dit **twee losse stores** (zelfde browser-origin, bewust gescheiden).
-  Echte gedeelde data komt later via SharePoint.
+Zie [`workers/README.md`](./workers/README.md) voor deploy, D1, secrets en endpoints.
 
-## Lokaal starten
+```bash
+cd workers
+npm install
+npx wrangler login          # Jasper — agent heeft geen CF-login
+# … D1 create, migrate, seed, secret put ACCESS_CODE, deploy
+```
+
+Frontend tegen live API:
+
+```bash
+VITE_API_URL=https://kavel-veiling-api.<account>.workers.dev npm run build:pages
+```
+
+## Lokaal starten (mock)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open de URL die Vite toont (meestal http://127.0.0.1:5173/kavel-veiling-test/).
+Open de URL van Vite. Mock-toegangscode: `isw-veiling` (alleen lokaal; productie = Cloudflare-secret).
 
 ## Bouwen voor GitHub Pages
 
 ```bash
 npm run build:pages
+# of met API:
+# VITE_API_URL=https://…workers.dev npm run build:pages
 ```
 
 Deploy `dist/` naar branch `gh-pages` (pad `/`).
 
 Live: https://hgj-isw.github.io/kavel-veiling-test/
 
-## Testen (kort)
+## Privacy
 
-1. Open de site → stand met 5 kavels (nepdata).
-2. **Inloggen als ELT** → Bieden → te laag bod → Nederlandse fout.
-3. Geldig bod → stand toont nieuw hoogste bedrag (zonder naam).
-4. Geen “Control Center” in het menu; `/admin` bestaat niet op deze site.
-5. Beheer: open de aparte admin-site (alleen `hgj@isw.info`).
+Stand en bied-responses tonen geen biedersnamen/e-mails. E-mails staan alleen in D1 (admin-API later).
 
-## SharePoint later
+## Follow-up
 
-Blokkers voor echte koppeling:
-
-1. School SharePoint-site/rechten + Graph/SharePoint API of Power Apps (nu test zonder API).
-2. App-registratie / ICT-goedkeuring voor aanroepen vanaf GitHub Pages (CORS + auth).
-3. Nieuwe lijsten naast collega-lijst (`Kavels_Stand`, `Biedingen_Geheim`) — bestaande lijst niet wissen.
-4. Echte `@isw.info`-login (Microsoft) i.p.v. test-allowlist.
-
-Vervang later de functies in `src/data/store.js` door SharePoint/Graph-calls met dezelfde namen.
+- Jasper: Cloudflare-account, deploy Worker, `ACCESS_CODE`, allowlist, `VITE_API_URL` op Pages-build
+- Admin-repo (`kavel-veiling-admin`) ook op dezelfde Cloudflare-API zetten
+- Optioneel later: echte Microsoft-login i.p.v. e-mail + toegangscode

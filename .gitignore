@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Cloudflare / Wrangler
+workers/node_modules
+workers/.wrangler
+workers/.dev.vars
+.dev.vars
+.wrangler
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

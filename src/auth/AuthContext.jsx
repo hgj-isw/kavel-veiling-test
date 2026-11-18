@@ -1,35 +1,33 @@
 import { createContext, useContext, useMemo, useState } from 'react'
-import { getSession, setSession } from '../data/store.js'
-import { isAdmin, isAllowedEmail, TEST_PIN } from './authConfig.js'
+import {
+  getLocalSession,
+  login as apiLogin,
+  logout as apiLogout,
+} from '../api/client.js'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => getSession())
+  const [user, setUser] = useState(() => {
+    const s = getLocalSession()
+    if (!s?.email) return null
+    return { email: s.email, admin: Boolean(s.admin), token: s.token }
+  })
 
   const value = useMemo(() => {
-    function loginAs(email) {
-      const normalized = String(email || '').trim().toLowerCase()
-      if (!isAllowedEmail(normalized)) {
-        throw new Error(
-          'Dit e-mailadres staat niet op de test-lijst. Alleen hgj@isw.info en elt@isw.info mogen nu inloggen.',
-        )
+    async function login(email, code) {
+      const data = await apiLogin({ email, code })
+      const next = {
+        email: data.email,
+        admin: Boolean(data.admin),
+        token: data.token,
       }
-      const next = { email: normalized, admin: isAdmin(normalized) }
-      setSession(next)
       setUser(next)
       return next
     }
 
-    function loginWithPin(email, pin) {
-      if (String(pin) !== TEST_PIN) {
-        throw new Error('Verkeerde test-PIN. Gebruik 1234 (alleen voor deze test).')
-      }
-      return loginAs(email)
-    }
-
-    function logout() {
-      setSession(null)
+    async function logout() {
+      await apiLogout()
       setUser(null)
     }
 
@@ -37,8 +35,7 @@ export function AuthProvider({ children }) {
       user,
       isLoggedIn: Boolean(user),
       isAdmin: Boolean(user?.admin),
-      loginAs,
-      loginWithPin,
+      login,
       logout,
     }
   }, [user])

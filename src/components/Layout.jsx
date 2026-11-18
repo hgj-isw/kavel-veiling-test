@@ -20,7 +20,6 @@ export default function Layout() {
             <NavLink to="/" end>
               Stand
             </NavLink>
-            <NavLink to="/bieden">Bieden</NavLink>
           </nav>
 
           <div className="header-user">
@@ -29,19 +28,20 @@ export default function Layout() {
                 <span className="header-user__email" title={user.email}>
                   {user.email}
                 </span>
-                <button type="button" className="btn btn--ghost" onClick={logout}>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => logout()}
+                >
                   Uitloggen
                 </button>
               </>
             ) : (
               <Link className="btn btn--ghost" to="/login">
-                Inloggen (test)
+                Inloggen
               </Link>
             )}
           </div>
-        </div>
-        <div className="test-banner" role="status">
-          TEST-omgeving met nepdata — geen echte SharePoint-koppeling
         </div>
       </header>
 
@@ -50,7 +50,7 @@ export default function Layout() {
       </main>
 
       <footer className="site-footer">
-        <p>ISW Hoogeland · goede-doelen kavelveiling · lokale testopslag</p>
+        <p>ISW Hoogeland · goede-doelen kavelveiling</p>
       </footer>
     </div>
   )
