@@ -4,14 +4,19 @@ GitHub Pages (leerling-site)
 Repo: hgj-isw/kavel-veiling-test
 Live: https://hgj-isw.github.io/kavel-veiling-test/
 
-Admin staat apart:
+Admin staat apart (nog niet Cloudflare):
   https://github.com/hgj-isw/kavel-veiling-admin
   https://hgj-isw.github.io/kavel-veiling-admin/
 
-Bouwen & deployen:
+API (Cloudflare Worker + D1):
+  Zie workers/README.md
+  Jasper: wrangler login → D1 → secret ACCESS_CODE → deploy
+  Build met: VITE_API_URL=https://<worker>.workers.dev
+
+Bouwen & deployen frontend:
 
   npm install
-  npm run build:pages
+  VITE_API_URL=… npm run build:pages   # of zonder URL = mock in browser
   # push dist/ naar branch gh-pages (pad /)
 
 Settings → Pages → Deploy from branch → gh-pages → / (root)

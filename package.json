@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Test-veilingwebsite ISW Hoogeland (nepdata, later SharePoint)",
+  "description": "Leerling-site kavelveiling ISW Hoogeland (Cloudflare API / lokale mock)",
   "scripts": {
     "dev": "vite",
     "build": "VITE_BASE=/kavel-veiling-test/ vite build",

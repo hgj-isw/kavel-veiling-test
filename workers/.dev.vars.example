@@ -1,0 +1,5 @@
+# Kopieer naar .dev.vars voor lokale `wrangler dev` (bestand staat in .gitignore).
+# NOOIT echte productie-geheimen committen.
+
+ACCESS_CODE=kies-een-sterke-code
+# ADMIN_TOKEN=optioneel-voor-admin-endpoints

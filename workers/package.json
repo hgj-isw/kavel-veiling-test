@@ -1,0 +1,20 @@
+{
+  "name": "kavel-veiling-api",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cloudflare Worker API for ISW Hoogeland kavelveiling",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create kavel-veiling",
+    "db:migrate:local": "wrangler d1 execute kavel-veiling --local --file=./schema.sql",
+    "db:migrate:remote": "wrangler d1 execute kavel-veiling --remote --file=./schema.sql",
+    "db:seed:local": "wrangler d1 execute kavel-veiling --local --file=./seed.sql",
+    "db:seed:remote": "wrangler d1 execute kavel-veiling --remote --file=./seed.sql",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.164.0"
+  }
+}

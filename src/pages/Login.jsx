@@ -1,70 +1,47 @@
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { getApiModeInfo } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
-import { TEST_ACCOUNTS, TEST_PIN } from '../auth/authConfig.js'
 
 export default function Login() {
-  const { isLoggedIn, loginAs, loginWithPin } = useAuth()
+  const { isLoggedIn, login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/'
+  const apiInfo = getApiModeInfo()
 
-  const [email, setEmail] = useState('hgj@isw.info')
-  const [pin, setPin] = useState('')
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [fout, setFout] = useState('')
+  const [bezig, setBezig] = useState(false)
 
   if (isLoggedIn) return <Navigate to={from} replace />
 
-  function go() {
-    navigate(from, { replace: true })
-  }
-
-  function onQuickLogin(accountEmail) {
-    setFout('')
-    try {
-      loginAs(accountEmail)
-      go()
-    } catch (err) {
-      setFout(err.message)
-    }
-  }
-
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault()
     setFout('')
+    setBezig(true)
     try {
-      loginWithPin(email, pin)
-      go()
+      await login(email, code)
+      navigate(from, { replace: true })
     } catch (err) {
-      setFout(err.message)
+      setFout(err.message || 'Inloggen mislukt.')
+    } finally {
+      setBezig(false)
     }
   }
 
   return (
     <section className="panel login-panel">
-      <p className="eyebrow">TEST-login</p>
-      <h1>Inloggen voor de testveiling</h1>
+      <p className="eyebrow">Inloggen</p>
+      <h1>Inloggen met schoolaccount</h1>
       <p className="lede">
-        Geen echte schoolwachtwoorden. Kies een testaccount of gebruik PIN{' '}
-        <code>{TEST_PIN}</code>.
+        Gebruik je <strong>@isw.info</strong>-e-mailadres en de toegangscode
+        die je van school hebt gekregen. Alleen adressen op de allowlist mogen
+        bieden.
       </p>
 
-      <div className="quick-login">
-        {TEST_ACCOUNTS.map((acc) => (
-          <button
-            key={acc.email}
-            type="button"
-            className="btn btn--primary quick-login__btn"
-            onClick={() => onQuickLogin(acc.email)}
-          >
-            Inloggen als {acc.label}
-            <span>{acc.email} · {acc.rol}</span>
-          </button>
-        ))}
-      </div>
-
       <form className="form" onSubmit={onSubmit}>
-        <h2>Of met e-mail + test-PIN</h2>
         <label>
           School-e-mail
           <input
@@ -72,16 +49,16 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="username"
+            placeholder="naam@isw.info"
             required
           />
         </label>
         <label>
-          Test-PIN
+          Toegangscode
           <input
             type="password"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            placeholder={TEST_PIN}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             autoComplete="current-password"
             required
           />
@@ -91,10 +68,14 @@ export default function Login() {
             {fout}
           </p>
         )}
-        <button type="submit" className="btn btn--secondary">
-          Inloggen met PIN
+        <button type="submit" className="btn btn--primary" disabled={bezig}>
+          {bezig ? 'Bezig…' : 'Inloggen'}
         </button>
       </form>
+
+      {apiInfo.hint && (
+        <p className="login-hint muted">{apiInfo.hint}</p>
+      )}
     </section>
   )
 }

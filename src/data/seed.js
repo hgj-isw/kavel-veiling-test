@@ -1,4 +1,4 @@
-/** Start-nepdata voor de testveiling. Later vervangbaar door SharePoint-lijsten. */
+/** Seed-data voor lokale mock-API (zelfde set als workers/seed.sql). */
 
 /** Bump bij structurele seed-wijzigingen (o.a. meer kavels voor stand-paginering). */
 export const SEED_VERSION = 2
