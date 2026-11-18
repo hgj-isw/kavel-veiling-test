@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import { apiBaseUrl, usingMockApi } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 
 export default function Layout() {
@@ -51,6 +52,11 @@ export default function Layout() {
 
       <footer className="site-footer">
         <p>ISW Hoogeland · goede-doelen kavelveiling</p>
+        <p className="site-footer__api muted">
+          {usingMockApi
+            ? 'Data: lokale mock (geen VITE_API_URL in deze build)'
+            : `Data: Cloudflare API · ${apiBaseUrl}`}
+        </p>
       </footer>
     </div>
   )

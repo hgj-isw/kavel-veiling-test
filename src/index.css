@@ -214,6 +214,11 @@ code {
   margin: 0;
 }
 
+.site-footer__api {
+  margin-top: 0.35rem !important;
+  font-size: 0.78rem;
+}
+
 .eyebrow {
   display: inline-block;
   margin: 0 0 0.55rem;
