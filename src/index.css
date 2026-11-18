@@ -214,11 +214,6 @@ p {
   margin: 0;
 }
 
-.site-footer__api {
-  margin-top: 0.35rem !important;
-  font-size: 0.78rem;
-}
-
 .lede {
   max-width: 36rem;
   color: var(--ink-soft);
@@ -556,6 +551,20 @@ p {
   margin: 0 0 0.35rem;
   font-size: 1.05rem;
   color: var(--brand-deep);
+}
+
+.charities__link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--brand-leaf) 55%, transparent);
+  text-underline-offset: 0.18em;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.charities__link:hover,
+.charities__link:focus-visible {
+  color: var(--brand-leaf);
+  text-decoration-color: var(--brand-leaf);
 }
 
 .charities__item p {

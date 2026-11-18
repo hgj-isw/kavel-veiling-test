@@ -1,5 +1,4 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { apiBaseUrl, usingMockApi } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 
 const logoSrc = `${import.meta.env.BASE_URL}brand/isw-hoogeland-logo.png`
@@ -57,11 +56,6 @@ export default function Layout() {
 
       <footer className="site-footer">
         <p>ISW Hoogeland · kavelveiling voor het goede doel</p>
-        <p className="site-footer__api muted">
-          {usingMockApi
-            ? 'Data: lokale mock (geen VITE_API_URL in deze build)'
-            : `Data: Cloudflare API · ${apiBaseUrl}`}
-        </p>
       </footer>
     </div>
   )
