@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { euro, fetchStand } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import BidModal from '../components/BidModal.jsx'
+import Charities from '../components/Charities.jsx'
 
 const REFRESH_MS = 60_000
 /**
@@ -106,41 +107,34 @@ export default function Stand() {
 
   return (
     <section className="stand">
-      <div className="stand__hero">
-        <p className="eyebrow">Live stand</p>
-        <h1>ISW Hoogeland kavelveiling</h1>
-        <p className="lede">
-          Hoogste bod per kavel — zonder namen. Klik op een kavel om te bieden.
-          De stand vernieuwt automatisch; bij veel kavels wisselen de pagina’s.
-        </p>
-        <div className="stand__meta">
+      <aside className="totaal-banner" aria-live="polite">
+        <p className="totaal-banner__label">Totaal opgehaald</p>
+        <p className="totaal-banner__bedrag">{euro(totaal)}</p>
+      </aside>
+
+      <div className="stand__toolbar">
+        <p className="stand__meta">
           <span>
-            Laatst vernieuwd:{' '}
             {laatste.toLocaleTimeString('nl-NL', {
               hour: '2-digit',
               minute: '2-digit',
               second: '2-digit',
             })}
           </span>
-          <span>Volgende refresh over ~{seconden}s</span>
+          <span>·</span>
+          <span>~{seconden}s</span>
+        </p>
+        <div className="stand__actions">
           <button type="button" className="btn btn--ghost" onClick={ververs}>
-            Nu vernieuwen
+            Vernieuwen
           </button>
           {!isLoggedIn && (
             <Link className="btn btn--primary" to="/login">
-              Inloggen om te bieden
+              Inloggen
             </Link>
           )}
         </div>
       </div>
-
-      <aside className="totaal-banner" aria-live="polite">
-        <p className="totaal-banner__label">Totaal opgehaald</p>
-        <p className="totaal-banner__bedrag">{euro(totaal)}</p>
-        <p className="totaal-banner__hint">
-          Som van echte hoogste biedingen (zonder startbedrag tot er geboden is)
-        </p>
-      </aside>
 
       {fout && (
         <p className="msg msg--error" role="alert">
@@ -174,8 +168,8 @@ export default function Stand() {
             })}
           </div>
           <p className="stand-pager__meta" aria-live="polite">
-            Pagina {safePage + 1} van {pageCount} · {rangeLabel}
-            {pageCount > 1 ? ` · wissel over ~${pageTick}s` : null}
+            Pagina {safePage + 1}/{pageCount}
+            {pageCount > 1 ? ` · ~${pageTick}s` : null}
           </p>
         </div>
       )}
@@ -198,9 +192,9 @@ export default function Stand() {
               <p>{k.omschrijving}</p>
               <p className="kavel-tile__bid">{euro(k.hoogsteBod)}</p>
               <p className="kavel-tile__hint">
-                Min. overbieding: {euro(k.stapGrootte)}
+                Min. +{euro(k.stapGrootte)}
                 {k.aantalBiedingen > 0
-                  ? ` · ${k.aantalBiedingen} bieding${k.aantalBiedingen === 1 ? '' : 'en'}`
+                  ? ` · ${k.aantalBiedingen}×`
                   : ' · nog geen biedingen'}
               </p>
               <span className="kavel-tile__cta">Bieden</span>
@@ -216,6 +210,9 @@ export default function Stand() {
       {!laden && stand.length === 0 && !fout && (
         <p className="empty">Er zijn nog geen actieve kavels.</p>
       )}
+
+      {/* Onder de projectie-grid: goede doelen blijven buiten 2×4-viewport. */}
+      <Charities />
 
       {actieveKavel && (
         <BidModal

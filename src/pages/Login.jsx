@@ -33,12 +33,9 @@ export default function Login() {
 
   return (
     <section className="panel login-panel">
-      <p className="eyebrow">Inloggen</p>
-      <h1>Inloggen met schoolaccount</h1>
+      <h1>Inloggen</h1>
       <p className="lede">
-        Gebruik je <strong>@isw.info</strong>-e-mailadres en de toegangscode
-        die je van school hebt gekregen. Alleen adressen op de allowlist mogen
-        bieden.
+        School-e-mail (@isw.info) en toegangscode.
       </p>
 
       <form className="form" onSubmit={onSubmit}>
