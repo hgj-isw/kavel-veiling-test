@@ -231,7 +231,14 @@ p {
   animation: rise 0.45s ease both;
 }
 
+.stand {
+  position: relative;
+}
+
 .stand-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
   min-height: calc(100vh - var(--header-h) - 5.5rem);
   display: grid;
   place-content: center;
@@ -239,13 +246,24 @@ p {
   gap: 0.85rem;
   padding: 2rem 1rem;
   text-align: center;
-  animation: rise 0.4s ease both;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 35%, rgba(232, 242, 235, 0.96), rgba(226, 239, 231, 0.92));
+  animation: load-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+}
+
+.stand-loading--out {
+  opacity: 0;
+  transform: scale(1.04) translateY(-10px);
+  filter: blur(2px);
+  pointer-events: none;
 }
 
 .stand-loading__logo {
   width: min(220px, 70vw);
   height: auto;
   display: block;
+  animation: logo-breathe 1.6s ease-in-out infinite;
 }
 
 .stand-loading__text {
@@ -257,9 +275,133 @@ p {
   color: var(--brand-deep);
 }
 
+.stand__ready--enter {
+  animation: stand-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .stand__stage {
-  /* Vul de viewport onder de header zodat goede doelen scroll vereisen. */
-  min-height: calc(100svh - var(--header-h) - 1.15rem);
+  /* Projectie: eerste viewport vrij van charities; cue maakt scroll vindbaar. */
+  min-height: calc(100svh - var(--header-h) - 2.75rem);
+  display: flex;
+  flex-direction: column;
+}
+
+.stand__scroll-cue {
+  margin: auto 0 0;
+  padding: 0.85rem 0 0.15rem;
+  text-align: center;
+}
+
+.stand__scroll-cue a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand);
+  opacity: 0.85;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.stand__scroll-cue a:hover,
+.stand__scroll-cue a:focus-visible {
+  opacity: 1;
+  color: var(--brand-deep);
+}
+
+.stijgers-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.85rem;
+  margin: 0 0 0.65rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(26, 107, 69, 0.18);
+  background: rgba(255, 255, 255, 0.62);
+  animation: rise 0.45s ease both;
+}
+
+.stijgers-bar__label {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.stijgers-bar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.stijgers-bar__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.stijgers-bar__rank {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: rgba(26, 107, 69, 0.12);
+  color: var(--brand-deep);
+  font-size: 0.68rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.stijgers-bar__hit {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.15rem 0.4rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.stijgers-bar__hit:hover,
+.stijgers-bar__hit:focus-visible {
+  background: rgba(26, 107, 69, 0.08);
+}
+
+.stijgers-bar__titel {
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 11rem;
+}
+
+.stijgers-bar__pct {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--brand-leaf);
+  flex-shrink: 0;
 }
 
 .stand__toolbar {
@@ -286,8 +428,8 @@ p {
   justify-items: center;
   text-align: center;
   gap: 0.05rem;
-  margin: 0 0 0.75rem;
-  padding: 0.7rem 1rem 0.8rem;
+  margin: 0 0 0.55rem;
+  padding: 0.55rem 1rem 0.65rem;
   border-radius: var(--radius);
   border: 1px solid rgba(26, 107, 69, 0.28);
   background:
@@ -530,10 +672,11 @@ p {
   margin: 0 !important;
 }
 
-/* Goede doelen: onder de fold / buiten projectie-grid. */
+/* Goede doelen: onder de fold, direct scrollbaar na de stage. */
 .charities {
-  margin-top: 2.75rem;
-  padding-top: 1.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.5rem;
+  scroll-margin-top: calc(var(--header-h) + 0.75rem);
   border-top: 1px solid var(--line);
   animation: rise 0.6s ease both;
 }
@@ -794,6 +937,40 @@ p {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes load-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes logo-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    transform: scale(1.035);
+    filter: drop-shadow(0 8px 18px rgba(26, 107, 69, 0.18));
+  }
+}
+
+@keyframes stand-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
