@@ -24,6 +24,22 @@ export function topStijgers(kavels, limit = 3) {
     .slice(0, limit)
 }
 
+/**
+ * Top hoogste bedragen: sorteer op hoogsteBod.
+ * Alleen kavels met ≥1 echt bod (startbedrag zonder biedingen telt niet).
+ */
+export function topHoogsteBedragen(kavels, limit = 3) {
+  return (kavels || [])
+    .filter((k) => k.aantalBiedingen > 0 && Number(k.hoogsteBod) > 0)
+    .slice()
+    .sort(
+      (a, b) =>
+        Number(b.hoogsteBod) - Number(a.hoogsteBod) ||
+        a.titel.localeCompare(b.titel, 'nl'),
+    )
+    .slice(0, limit)
+}
+
 export function formatStijgingPct(pct) {
   const rounded = Math.round(pct)
   const abs = Math.abs(rounded)
