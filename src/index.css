@@ -258,8 +258,8 @@ p {
 }
 
 .stand__stage {
-  /* Houd goede doelen onder de fold op projectie-/desktopschermen. */
-  min-height: calc(100vh - var(--header-h) - 4.5rem);
+  /* Vul de viewport onder de header zodat goede doelen scroll vereisen. */
+  min-height: calc(100svh - var(--header-h) - 1.15rem);
 }
 
 .stand__toolbar {
