@@ -9,7 +9,7 @@ Zonder `VITE_API_URL` valt de UI terug op een lokale **mock** met dezelfde API-v
 
 ## Wat zit erin
 
-- **Stand** (`/`): hoogste bod per kavel, totaal opgehaald, **zonder namen**; projectie-paginering (8/pagina, ~15s); compacte **top 3 snelst stijgend** (hoogste % t.o.v. startbedrag, alleen met echte biedingen); goede doelen onder de fold (scrollbaar)
+- **Stand** (`/`): hoogste bod per kavel, totaal opgehaald, **zonder namen**; projectie-paginering (8/pagina, ~15s); volle stroken **Snelst stijgend** + **Hoogste bedragen** onder elkaar (top 3, alleen met echte biedingen); goede doelen onder de fold (scrollbaar)
 - **Bieden**: klik op een kaveltegel → popup (bedrag + bevestigen); geen apart bied-tabblad
 - **Login**: school-e-mail (`@isw.info`) + toegangscode, gevalideerd tegen Worker-allowlist + `ACCESS_CODE`
 
