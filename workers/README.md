@@ -14,6 +14,7 @@ De publieke stand toont **geen** biedersnamen/e-mails.
 | GET | `/api/me` | Bearer | Huidige gebruiker |
 | POST | `/api/bids` | Bearer | `{ kavelId, bedrag }` |
 | GET | `/api/admin/biedingen` | admin | Alle biedingen **met** e-mail |
+| DELETE | `/api/admin/biedingen/:id` | admin | Één onzinbod hard-deleten (geen bulk); stand herberekent live |
 | GET | `/api/admin/allowlist` | admin | Allowlist |
 
 ## Wat Jasper moet zetten (eenmalig)

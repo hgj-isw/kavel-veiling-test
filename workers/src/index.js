@@ -13,9 +13,10 @@
  * Bieden (ingelogd):
  *   POST /api/bids           { kavelId, bedrag }
  *
- * Admin (later / stub):
- *   GET  /api/admin/biedingen
- *   GET  /api/admin/allowlist
+ * Admin (Bearer + allowlist is_admin):
+ *   GET    /api/admin/biedingen
+ *   DELETE /api/admin/biedingen/:id   → hard-delete één onzinbod (admin only; geen bulk)
+ *   GET    /api/admin/allowlist
  */
 
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000 // 12 uur
@@ -79,6 +80,11 @@ export default {
 
       if (method === 'GET' && path === '/api/admin/biedingen') {
         return handleAdminBiedingen(request, env)
+      }
+
+      const deleteBidMatch = /^\/api\/admin\/biedingen\/([^/]+)$/.exec(path)
+      if (method === 'DELETE' && deleteBidMatch) {
+        return handleAdminDeleteBid(request, env, decodeURIComponent(deleteBidMatch[1]))
       }
 
       if (method === 'GET' && path === '/api/admin/allowlist') {
@@ -296,6 +302,41 @@ async function handleAdminBiedingen(request, env) {
   return json(env, request, { biedingen: results ?? [] })
 }
 
+/** Hard-delete één bod. `/api/stand` herberekent daarna hoogste/totaal live uit D1. */
+async function handleAdminDeleteBid(request, env, bidId) {
+  const session = await requireAdmin(request, env)
+  if (session instanceof Response) return session
+
+  const id = String(bidId || '').trim()
+  if (!id) {
+    return json(env, request, { error: 'Bod-id ontbreekt.' }, 400)
+  }
+
+  const existing = await env.DB.prepare(
+    'SELECT id, kavel_id AS kavelId, bedrag, email FROM biedingen WHERE id = ?',
+  )
+    .bind(id)
+    .first()
+
+  if (!existing) {
+    return json(env, request, { error: 'Bod niet gevonden.' }, 404)
+  }
+
+  const result = await env.DB.prepare('DELETE FROM biedingen WHERE id = ?')
+    .bind(id)
+    .run()
+
+  if (!result.meta?.changes) {
+    return json(env, request, { error: 'Bod niet gevonden.' }, 404)
+  }
+
+  return json(env, request, {
+    ok: true,
+    id: existing.id,
+    kavelId: existing.kavelId,
+  })
+}
+
 async function handleAdminAllowlist(request, env) {
   const session = await requireAdmin(request, env)
   if (session instanceof Response) return session
@@ -449,7 +490,7 @@ function cors(env, request, response) {
   const origin = allowedOrigin(env, request)
   if (origin) {
     headers.set('Access-Control-Allow-Origin', origin)
-    headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
     headers.set(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization',
