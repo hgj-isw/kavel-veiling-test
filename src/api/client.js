@@ -13,7 +13,6 @@ const API_BASE = String(import.meta.env.VITE_API_URL || '')
   .replace(/\/+$/, '')
 
 export const usingMockApi = !API_BASE
-export const apiBaseUrl = API_BASE || null
 
 const TOKEN_KEY = 'isw-kavel-api-token-v1'
 
