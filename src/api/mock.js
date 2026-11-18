@@ -79,7 +79,11 @@ function buildStand(db) {
             : stats.hoogsteBod + k.stapGrootte,
       }
     })
-  const totaalOpgehaald = kavels.reduce((s, k) => s + k.hoogsteBod, 0)
+  // Alleen kavels met minstens één echt bod tellen mee (niet kale startbedragen).
+  const totaalOpgehaald = kavels.reduce(
+    (s, k) => (k.aantalBiedingen > 0 ? s + k.hoogsteBod : s),
+    0,
+  )
   return { kavels, totaalOpgehaald }
 }
 
