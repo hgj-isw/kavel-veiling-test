@@ -27,47 +27,61 @@ export default {
         return cors(env, request, new Response(null, { status: 204 }))
       }
 
+      // HEAD moet hetzelfde pad als GET volgen (anders 404 → “API werkt niet” in checks).
+      const method = request.method === 'HEAD' ? 'GET' : request.method
       const url = new URL(request.url)
       const path = url.pathname.replace(/\/+$/, '') || '/'
 
-      if (request.method === 'GET' && (path === '/' || path === '/api' || path === '/api/health')) {
-        return json(env, request, {
-          ok: true,
-          service: 'kavel-veiling-api',
-          privacy: 'stand heeft geen biedersnamen',
-        })
+      if (method === 'GET' && (path === '/' || path === '/api' || path === '/api/health')) {
+        return json(
+          env,
+          request,
+          {
+            ok: true,
+            service: 'kavel-veiling-api',
+            privacy: 'stand heeft geen biedersnamen',
+          },
+          200,
+          request.method === 'HEAD',
+        )
       }
 
-      if (request.method === 'GET' && path === '/api/stand') {
-        return json(env, request, await getStand(env.DB))
+      if (method === 'GET' && path === '/api/stand') {
+        return json(env, request, await getStand(env.DB), 200, request.method === 'HEAD')
       }
 
-      if (request.method === 'POST' && path === '/api/auth/login') {
+      if (method === 'POST' && path === '/api/auth/login') {
         return handleLogin(request, env)
       }
 
-      if (request.method === 'POST' && path === '/api/auth/logout') {
+      if (method === 'POST' && path === '/api/auth/logout') {
         return handleLogout(request, env)
       }
 
-      if (request.method === 'GET' && path === '/api/me') {
+      if (method === 'GET' && path === '/api/me') {
         const session = await requireSession(request, env)
         if (session instanceof Response) return session
-        return json(env, request, {
-          email: session.email,
-          admin: session.admin,
-        })
+        return json(
+          env,
+          request,
+          {
+            email: session.email,
+            admin: session.admin,
+          },
+          200,
+          request.method === 'HEAD',
+        )
       }
 
-      if (request.method === 'POST' && path === '/api/bids') {
+      if (method === 'POST' && path === '/api/bids') {
         return handlePlaceBid(request, env)
       }
 
-      if (request.method === 'GET' && path === '/api/admin/biedingen') {
+      if (method === 'GET' && path === '/api/admin/biedingen') {
         return handleAdminBiedingen(request, env)
       }
 
-      if (request.method === 'GET' && path === '/api/admin/allowlist') {
+      if (method === 'GET' && path === '/api/admin/allowlist') {
         return handleAdminAllowlist(request, env)
       }
 
@@ -403,11 +417,12 @@ function cors(env, request, response) {
   })
 }
 
-function json(env, request, data, status = 200) {
+function json(env, request, data, status = 200, headOnly = false) {
+  const body = headOnly ? null : JSON.stringify(data)
   return cors(
     env,
     request,
-    new Response(JSON.stringify(data), {
+    new Response(body, {
       status,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',

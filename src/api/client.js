@@ -14,6 +14,7 @@ const API_BASE = String(import.meta.env.VITE_API_URL || '')
   .replace(/\/+$/, '')
 
 export const usingMockApi = !API_BASE
+export const apiBaseUrl = API_BASE || null
 
 const TOKEN_KEY = 'isw-kavel-api-token-v1'
 
@@ -69,11 +70,21 @@ async function api(method, path, { body, auth = false } = {}) {
     headers.Authorization = `Bearer ${token}`
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  })
+  let res
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  } catch (networkErr) {
+    const err = new Error(
+      `Geen verbinding met de veiling-API (${API_BASE}). Controleer netwerk/firewall of hard-vernieuw de pagina (Ctrl/Cmd+Shift+R).`,
+    )
+    err.status = 0
+    err.cause = networkErr
+    throw err
+  }
 
   let data = null
   const text = await res.text()
@@ -86,7 +97,7 @@ async function api(method, path, { body, auth = false } = {}) {
   }
 
   if (!res.ok) {
-    const err = new Error(data?.error || `Fout ${res.status}`)
+    const err = new Error(data?.error || `API-fout ${res.status} op ${path}`)
     err.status = res.status
     err.data = data
     throw err
